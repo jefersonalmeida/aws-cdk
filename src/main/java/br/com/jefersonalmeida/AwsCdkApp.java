@@ -1,6 +1,7 @@
 package br.com.jefersonalmeida;
 
 import br.com.jefersonalmeida.config.EnvConfig;
+import br.com.jefersonalmeida.stack.AwsCdkECSClusterStack;
 import br.com.jefersonalmeida.stack.AwsCdkVpcStack;
 import software.amazon.awscdk.core.App;
 import software.amazon.awscdk.core.StackProps;
@@ -28,13 +29,27 @@ public class AwsCdkApp {
         tags.put("resource", "course-spring");
         tags.put("origin", "aws-cdk");
 
-        new AwsCdkVpcStack(app, "AwsCdkVpcStack",
+        AwsCdkVpcStack awsCdkVpcStack = new AwsCdkVpcStack(
+                app,
+                "AwsCdkVpcStack",
                 StackProps.builder()
                         .env(EnvConfig.getEnvironment())
                         .description("AwsCdkVpcStack criada a partir do curso de Spring")
                         .tags(tags)
                         .build()
         );
+
+        AwsCdkECSClusterStack awsCdkECSClusterStack = new AwsCdkECSClusterStack(
+                app,
+                "AwsCdkECSClusterStack",
+                awsCdkVpcStack.getVpc(),
+                StackProps.builder()
+                        .env(EnvConfig.getEnvironment())
+                        .description("AwsCdkECSClusterStack criada a partir do curso de Spring")
+                        .tags(tags)
+                        .build()
+        );
+        awsCdkECSClusterStack.addDependency(awsCdkVpcStack);
 
         app.synth();
     }
