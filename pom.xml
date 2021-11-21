@@ -60,6 +60,11 @@
         </dependency>
         <dependency>
             <groupId>software.amazon.awscdk</groupId>
+            <artifactId>rds</artifactId>
+            <version>${cdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awscdk</groupId>
             <artifactId>assertions</artifactId>
             <version>${cdk.version}</version>
             <scope>test</scope>
@@ -68,7 +73,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
-          <scope>test</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
