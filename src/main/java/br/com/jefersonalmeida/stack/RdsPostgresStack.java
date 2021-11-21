@@ -6,15 +6,15 @@ import software.amazon.awscdk.services.rds.*;
 
 import java.util.Collections;
 
-public class RdsMySQLStack extends Stack {
+public class RdsPostgresStack extends Stack {
 
     private final DatabaseInstance databaseInstance;
 
-    public RdsMySQLStack(final Construct scope, final String id, final Vpc vpc) {
+    public RdsPostgresStack(final Construct scope, final String id, final Vpc vpc) {
         this(scope, id, vpc, null);
     }
 
-    public RdsMySQLStack(final Construct scope, final String id, final Vpc vpc, final StackProps props) {
+    public RdsPostgresStack(final Construct scope, final String id, final Vpc vpc, final StackProps props) {
         super(scope, id, props);
 
         CfnParameter databasePassword = CfnParameter.Builder
@@ -24,15 +24,15 @@ public class RdsMySQLStack extends Stack {
                 .build();
 
         ISecurityGroup securityGroup = SecurityGroup.fromSecurityGroupId(this, id, vpc.getVpcDefaultSecurityGroup());
-        securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(3306));
+        securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(5432));
 
         Credentials credentials = Credentials.fromUsername("admin", CredentialsFromUsernameOptions.builder()
                 .password(SecretValue.plainText(databasePassword.getValueAsString()))
                 .build()
         );
 
-        IInstanceEngine instanceEngineMySQL = DatabaseInstanceEngine.mysql(MySqlInstanceEngineProps.builder()
-                .version(MysqlEngineVersion.VER_8_0_26)
+        IInstanceEngine instanceEnginePostgres = DatabaseInstanceEngine.postgres(PostgresInstanceEngineProps.builder()
+                .version(PostgresEngineVersion.VER_13_4)
                 .build()
         );
 
@@ -43,7 +43,7 @@ public class RdsMySQLStack extends Stack {
         databaseInstance = DatabaseInstance.Builder
                 .create(this, id.concat("Rds01"))
                 .instanceIdentifier("aws-service-01-db")
-                .engine(instanceEngineMySQL)
+                .engine(instanceEnginePostgres)
                 .vpc(vpc)
                 .credentials(credentials)
                 .instanceType(instanceType)
