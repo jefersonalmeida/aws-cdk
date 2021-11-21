@@ -1,8 +1,10 @@
 package br.com.jefersonalmeida;
 
 import br.com.jefersonalmeida.config.EnvConfig;
-import br.com.jefersonalmeida.stack.AwsCdkECSClusterStack;
-import br.com.jefersonalmeida.stack.AwsCdkVpcStack;
+import br.com.jefersonalmeida.stack.ClusterStack;
+import br.com.jefersonalmeida.stack.RdsMySQLStack;
+import br.com.jefersonalmeida.stack.Service01Stack;
+import br.com.jefersonalmeida.stack.VpcStack;
 import software.amazon.awscdk.core.App;
 import software.amazon.awscdk.core.StackProps;
 
@@ -12,44 +14,57 @@ import java.util.Map;
 public class AwsCdkApp {
     public static void main(final String[] args) {
         App app = new App();
-//        new AwsCdkStack(app, "AwsCdkStack", StackProps.builder()
-//                /*
-//                .env(Environment.builder()
-//                        .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
-//                        .region(System.getenv("CDK_DEFAULT_REGION"))
-//                        .build())
-//                */
-//                .env(Environment.builder()
-//                        .account("710619037984")
-//                        .region("sa-east-1")
-//                        .build())
-//                .build());
-//
+
         Map<String, String> tags = new HashMap<>();
         tags.put("resource", "course-spring");
         tags.put("origin", "aws-cdk");
 
-        AwsCdkVpcStack awsCdkVpcStack = new AwsCdkVpcStack(
+        VpcStack vpcStack = new VpcStack(
                 app,
-                "AwsCdkVpcStack",
+                "VpcStack",
                 StackProps.builder()
                         .env(EnvConfig.getEnvironment())
-                        .description("AwsCdkVpcStack criada a partir do curso de Spring")
+                        .description("VpcStack criada a partir do curso de Spring")
                         .tags(tags)
                         .build()
         );
 
-        AwsCdkECSClusterStack awsCdkECSClusterStack = new AwsCdkECSClusterStack(
+        ClusterStack clusterStack = new ClusterStack(
                 app,
-                "AwsCdkECSClusterStack",
-                awsCdkVpcStack.getVpc(),
+                "ClusterStack",
+                vpcStack.getVpc(),
                 StackProps.builder()
                         .env(EnvConfig.getEnvironment())
-                        .description("AwsCdkECSClusterStack criada a partir do curso de Spring")
+                        .description("ClusterStack criada a partir do curso de Spring")
                         .tags(tags)
                         .build()
         );
-        awsCdkECSClusterStack.addDependency(awsCdkVpcStack);
+        clusterStack.addDependency(vpcStack);
+
+        RdsMySQLStack rdsMySQLStack = new RdsMySQLStack(
+                app,
+                "RdsMySQLStack",
+                vpcStack.getVpc(),
+                StackProps.builder()
+                        .env(EnvConfig.getEnvironment())
+                        .description("RdsMySQLStack criada a partir do curso de Spring")
+                        .tags(tags)
+                        .build()
+        );
+        rdsMySQLStack.addDependency(vpcStack);
+
+        Service01Stack service01Stack = new Service01Stack(
+                app,
+                "Service01Stack",
+                clusterStack.getCluster(),
+                StackProps.builder()
+                        .env(EnvConfig.getEnvironment())
+                        .description("Service01Stack criada a partir do curso de Spring")
+                        .tags(tags)
+                        .build()
+        );
+        service01Stack.addDependency(clusterStack);
+        service01Stack.addDependency(rdsMySQLStack);
 
         app.synth();
     }
