@@ -30,7 +30,7 @@ public class Service01Stack extends Stack {
         envVariables.put("SPRING_DATASOURCE_PASSWORD", Fn.importValue("rds-password"));
 
 
-        RepositoryImage repositoryImage = ContainerImage.fromRegistry("jefersonalmeida/aws_service_01:1.0.1");
+        RepositoryImage repositoryImage = ContainerImage.fromRegistry("jefersonalmeida/aws_service_01:1.0.2");
 
         AwsLogDriverProps logDriverProps = AwsLogDriverProps.builder()
                 .logGroup(LogGroup.Builder.create(this, id.concat("LogGroup"))
